@@ -1,0 +1,12 @@
+name: milestone-8
+title: milestone-8
+username:
+account: kcao
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1504978
+bundleId: 2606212
+url: https://kcao.shinyapps.io/milestone-8/
+when: 1574315680.46952
+asMultiple: FALSE
+asStatic: FALSE

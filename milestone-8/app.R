@@ -5,12 +5,10 @@ library(tm)
 library(SentimentAnalysis)
 library(wordcloud)
 library(tidyverse)
-library(syuzhet)
 library(memoise)
 data(profiles)
 profiles_clean <- profiles %>%
   filter(!is.na(essay0))
-
 
 # Define UI for application, using the NavBar bootstrap format
 
@@ -60,25 +58,42 @@ ui <- navbarPage("Milestone 8",
 # Define server logic which outputs the graphic created
 
 server <- function(input, output, session) {
-  # Define a reactive expression for the document term matrix
-  terms <- reactive({
-    # Change when the "update" button is pressed...
-    input$update
-    # ...but not for anything else
-    isolate({
-      withProgress({
-        setProgress(message = "Processing corpus...")
-        getTermMatrix()
-      })
-    })
+  
+  word = reactive({
+    myCorpus = Corpus(VectorSource(profiles_clean$essay0))
+    myCorpus = tm_map(myCorpus, content_transformer(tolower))
+    myCorpus = tm_map(myCorpus, removePunctuation)
+    myCorpus = tm_map(myCorpus, removeNumbers)
+    myCorpus = tm_map(myCorpus, removeWords,
+                      c(stopwords("english"), "like", "ive", "san", "francisco"))
+    
+    myDTM = TermDocumentMatrix(myCorpus,
+                               control = list(minWordLength = 1))
+    
+    m = as.matrix(myDTM)
+    v = sort(rowSums(m),decreasing = TRUE)
+    data.frame(word=names(v),freq=v)$word
   })
   
-  # Make the wordcloud drawing predictable during a session
-  wordcloud_rep <- repeatable(wordcloud)
+  freq = reactive({
+    myCorpus = Corpus(VectorSource(profiles_clean$essay0))
+    myCorpus = tm_map(myCorpus, content_transformer(tolower))
+    myCorpus = tm_map(myCorpus, removePunctuation)
+    myCorpus = tm_map(myCorpus, removeNumbers)
+    myCorpus = tm_map(myCorpus, removeWords,
+                      c(stopwords("english"), "like", "ive", "san", "francisco"))
+    
+    myDTM = TermDocumentMatrix(myCorpus,
+                               control = list(minWordLength = 1))
+    
+    m = as.matrix(myDTM)
+    v = sort(rowSums(m),decreasing = TRUE)
+    data.frame(word=names(v),freq=v)$freq
+  })
   
   output$plot <- renderPlot({
-    v <- terms()
-    wordcloud_rep(names(v), v, scale=c(4,0.5),
+    wordcloud(words = word(), 
+              freq = freq(), scale=c(4,0.5),
                   min.freq = input$freq, max.words=input$max,
                   colors=brewer.pal(8, "Dark2"))
   })
@@ -91,16 +106,6 @@ server <- function(input, output, session) {
     hist(profiles$age, breaks = bins, col = 'darkgray', border = 'white')
   })
   
-  
-  output$bar <- renderPlot({
-  
-    
-    our_data <- reactive_data()
-    
-    barplot(sent3$emotion, sent3$count,
-            ylab="Total",
-            xlab="Emotion")
-  })
 }
 
 # Run application 

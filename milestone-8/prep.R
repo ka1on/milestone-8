@@ -24,8 +24,7 @@ getTermMatrix <- memoise(function() {
                              control = list(minWordLength = 1))
   
   m = as.matrix(myDTM)
-  
-  sort(rowSums(m), decreasing = TRUE)
+  v = sort(rowSums(m),decreasing = TRUE)
 })
 
 sent2 <- get_nrc_sentiment(profiles_clean$essay0)
