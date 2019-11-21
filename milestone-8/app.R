@@ -10,6 +10,21 @@ data(profiles)
 profiles_clean <- profiles %>%
   filter(!is.na(essay0))
 
+getTermMatrix <- memoise(function() {
+  myCorpus = Corpus(VectorSource(profiles_clean$essay0))
+  myCorpus = tm_map(myCorpus, content_transformer(tolower))
+  myCorpus = tm_map(myCorpus, removePunctuation)
+  myCorpus = tm_map(myCorpus, removeNumbers)
+  myCorpus = tm_map(myCorpus, removeWords,
+                    c(stopwords("english"), "like", "ive", "san", "francisco"))
+  
+  myDTM = TermDocumentMatrix(myCorpus,
+                             control = list(minWordLength = 1))
+  
+  m = as.matrix(myDTM)
+  v = sort(rowSums(m),decreasing = TRUE)
+})
+
 # Define UI for application, using the NavBar bootstrap format
 
 ui <- navbarPage("Milestone 8",
@@ -58,42 +73,10 @@ ui <- navbarPage("Milestone 8",
 # Define server logic which outputs the graphic created
 
 server <- function(input, output, session) {
-  
-  word = reactive({
-    myCorpus = Corpus(VectorSource(profiles_clean$essay0))
-    myCorpus = tm_map(myCorpus, content_transformer(tolower))
-    myCorpus = tm_map(myCorpus, removePunctuation)
-    myCorpus = tm_map(myCorpus, removeNumbers)
-    myCorpus = tm_map(myCorpus, removeWords,
-                      c(stopwords("english"), "like", "ive", "san", "francisco"))
-    
-    myDTM = TermDocumentMatrix(myCorpus,
-                               control = list(minWordLength = 1))
-    
-    m = as.matrix(myDTM)
-    v = sort(rowSums(m),decreasing = TRUE)
-    data.frame(word=names(v),freq=v)$word
-  })
-  
-  freq = reactive({
-    myCorpus = Corpus(VectorSource(profiles_clean$essay0))
-    myCorpus = tm_map(myCorpus, content_transformer(tolower))
-    myCorpus = tm_map(myCorpus, removePunctuation)
-    myCorpus = tm_map(myCorpus, removeNumbers)
-    myCorpus = tm_map(myCorpus, removeWords,
-                      c(stopwords("english"), "like", "ive", "san", "francisco"))
-    
-    myDTM = TermDocumentMatrix(myCorpus,
-                               control = list(minWordLength = 1))
-    
-    m = as.matrix(myDTM)
-    v = sort(rowSums(m),decreasing = TRUE)
-    data.frame(word=names(v),freq=v)$freq
-  })
-  
   output$plot <- renderPlot({
-    wordcloud(words = word(), 
-              freq = freq(), scale=c(4,0.5),
+    v <- getTermMatrix()
+    wordcloud(words = names(v), 
+              freq = v, scale=c(4,0.5),
                   min.freq = input$freq, max.words=input$max,
                   colors=brewer.pal(8, "Dark2"))
   })

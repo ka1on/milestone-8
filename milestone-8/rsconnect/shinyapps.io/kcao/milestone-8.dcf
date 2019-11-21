@@ -5,8 +5,8 @@ account: kcao
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1504978
-bundleId: 2606212
+bundleId: 2606299
 url: https://kcao.shinyapps.io/milestone-8/
-when: 1574315680.46952
+when: 1574318977.32916
 asMultiple: FALSE
 asStatic: FALSE
