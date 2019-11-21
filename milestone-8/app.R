@@ -1,8 +1,12 @@
 # Load the necessary packages
-
 library(shiny)
 library(okcupiddata)
+library(tm)
+library(SentimentAnalysis)
+library(wordcloud)
 library(tidyverse)
+library(syuzhet)
+library(memoise)
 data(profiles)
 profiles_clean <- profiles %>%
   filter(!is.na(essay0))
