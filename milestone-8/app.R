@@ -12,7 +12,6 @@ profiles_clean <- profiles %>%
 
 ui <- navbarPage("Milestone 8",
                  tabPanel("About", includeMarkdown("about.md")),
-                 tabPanel("Data", includeMarkdown("about.md")),
                  tabPanel("Overview of Profiles by Age, Sex, and Income (in progress)",
                           fluidPage(
                             
@@ -38,7 +37,7 @@ ui <- navbarPage("Milestone 8",
                  tabPanel("Word Cloud of Profile Biographies",
                           fluidPage(
                             # Application title
-                            titlePanel("Word Cloud"),
+                            titlePanel("Word Cloud (Please wait for corpus to process!"),
                             sidebarLayout(
                                 sliderInput("freq",
                                             "Minimum Frequency:",
